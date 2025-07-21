@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Danny-Dasilva/fhttp"
+	http "github.com/Danny-Dasilva/fhttp"
 )
 
 func (in *Instance) Joiner(invite, session string, typ int) {
@@ -193,15 +193,18 @@ func (in *Instance) Leaver(ID string) {
 func (in *Instance) Message(msg, ID string, opt MessageOptions) (int, []byte) {
 	var count int
 
-	message := msg
+	temp_message := msg
+	message := ""
 	for {
 		if opt.Mping {
 			var ping string
 			for _, user := range ReturnRandomArray(opt.IDs, opt.Amount) {
 				ping += fmt.Sprintf("<@%s>", user)
 			}
-			message = msg + " | " + ping
+			temp_message = msg + " | " + ping
 		}
+		random := RandomString(20)
+		message = temp_message + " \n" + random
 	retry:
 		payload := map[string]interface{}{
 			"content":             message,
@@ -1183,4 +1186,15 @@ func (in *Instance) OnBoard(GID string, Resp []string) {
 		log.Println(string(body))
 	}
 
+}
+
+var Charset = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+
+func RandomString(n int) string {
+	rand.Seed(time.Now().UnixNano())
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = Charset[rand.Intn(len(Charset))]
+	}
+	return string(b)
 }
